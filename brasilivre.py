@@ -44,12 +44,16 @@ print(redditors_names)
 for redditor in redditors_names:
     try:
         count = 0
-        # reverse_count = 0
+        reverse_count = 0
         for submission in reddit.redditor(redditor).new(limit=300):
             if submission.subreddit.display_name == "brasilivre": count+=1
-            if count == 75: 
+            elif submission.subreddit.display_name == "brasil": reverse_count+=1
+        if count >= 75:
+            print(redditor, " [brasil = ", reverse_count, ", brasilivre = ", count, "]") 
+            ratio = count/(count + reverse_count)
+            if ratio >= 0.9:
+                print("adicionando usuario ", redditor)
                 final_redditors_list.append(redditor)
-                break
     except Forbidden:
         continue
 
