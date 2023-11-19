@@ -9,13 +9,13 @@ reddit = praw.Reddit(
     client_secret="eVfkbkX7kCnAAcvxJFCK7KVYKVJYrg", # secret
     user_agent="ars_scrapper", # script name
     username="broccoli_soccer",
-    password="alexandrepato12?", 
+    password="alexandrepato12?",
 )
 
 comments_and_posts = [] # vetor inicial que vai o título e conteúdo dos posts ou o conteúdo dos comentários
 
 def is_post(instancia):
-    try: 
+    try:
         instancia = str(submission.body) # caso seja comentario
         return False
     except AttributeError:
@@ -28,64 +28,89 @@ def has_minimal_content(instancia):
     ###
     return True
 
+def list_redditors(redditors_names, final_redditors_list):
+
+    for submission in reddit.subreddit("brasilivre").top(time_filter="month"):
+    # print(type(str(submission.author)))
+      if not operator.contains(redditors_names, str(submission.author)):
+          redditors_names.append(str(submission.author))
+
+    return redditors_names, final_redditors_list
+
 redditors_names = []
 final_redditors_list = []
-for submission in reddit.subreddit("brasilivre").top(time_filter="month"):
-    # print(type(str(submission.author)))
-    if not operator.contains(redditors_names, str(submission.author)):
-        redditors_names.append(str(submission.author))
+
+redditors_name, final_redditors_list = list_redditors(redditors_names, final_redditors_list)
+
 
 print("Lista inicial de nomes que postaram recentemente no r/brasilivre: ")
 print(redditors_names)
 
 # pra cada nome na lista
-# if submission.subreddit.display_name == "brasil":
+# if submission.subreddit.display_name == "brasilivre":
 
-for redditor in redditors_names:
-    try:
-        count = 0
-        reverse_count = 0
-        for submission in reddit.redditor(redditor).new(limit=300):
-            if submission.subreddit.display_name == "brasilivre": count+=1
-            elif submission.subreddit.display_name == "brasil": reverse_count+=1
-        if count >= 75:
-            print(redditor, " [brasil = ", reverse_count, ", brasilivre = ", count, "]") 
-            ratio = count/(count + reverse_count)
-            if ratio >= 0.9:
-                print("adicionando usuario ", redditor)
-                final_redditors_list.append(redditor)
-    except Forbidden:
-        continue
+def select_redditors(redditors_names, final_redditors_list):
+
+        for redditor in redditors_names:
+
+            try:
+                count = 0
+                reverse_count = 0
+
+                for submission in reddit.redditor(redditor).new(limit=300):
+                    if submission.subreddit.display_name == "brasilivre": count+=1
+                    elif submission.subreddit.display_name == "brasil": reverse_count+=1
+
+                if count >= 75:
+                    print(redditor, " [brasilivre = ", count, ", brasil = ", reverse_count, "]")
+                    ratio = count/(count + reverse_count)
+                    if ratio >= 0.9:
+                        print("Adicionando usuario ", redditor)
+                        final_redditors_list.append(redditor)
+
+            except Forbidden:
+                continue
+
+        return final_redditors_list
+
+final_redditors_list = select_redditors(redditors_names, final_redditors_list)
 
 print("Lista final de usuários ativos no r/brasilivre: ")
 print(final_redditors_list)
 
 df = pd.DataFrame() # dataframe com os autores e o conteúdo dos posts
-for redditor in final_redditors_list:
-    count = 0
-    try:
-        for submission in reddit.redditor(redditor).new(limit=250):        
-            try: 
-                content = str(submission.body) # caso seja comentario
-                comments_and_posts.append(content)
-                # count+=1
-            except AttributeError:
-                content = str(submission.title) # caso seja post
-                post_content = str(submission.selftext)
-                content = "Titulo = " + content + "\n Conteúdo = " + post_content
-                comments_and_posts.append(content)
-                # count+=1
-            # if count == 250: 
-        if(len(comments_and_posts) == 250):
-            df[redditor] = comments_and_posts
-            print(df)
-        comments_and_posts.clear()
-                # break
-    except Forbidden: continue
-print(df)
+
+
+def create_dataset(final_redditors_list):
+
+      for redditor in final_redditors_list:
+          count = 0
+          try:
+              for submission in reddit.redditor(redditor).new(limit=250):
+                  try:
+                      content = str(submission.body) # caso seja comentario
+                      comments_and_posts.append(content)
+    
+                  except AttributeError:
+                      content = str(submission.title) # caso seja post
+                      post_content = str(submission.selftext)
+                      content = "Titulo = " + content + "\n Conteúdo = " + post_content
+                      comments_and_posts.append(content)
+                    
+              if(len(comments_and_posts) == 250):
+                  df[redditor] = comments_and_posts
+                  print(df)
+              comments_and_posts.clear()
+
+          except Forbidden: continue
+    
+      return df
+
+df = create_dataset(final_redditors_list)
+
 df.to_csv('brasilivre.csv', sep=',', index=False)
         # print(redditor, end = " [")
-        # print("brasil = " + str(count), end =", ")
-        # print("brasilivre = " + str(reverse_count), end="]\n")
+        # print("brasilivre = " + str(count), end =", ")
+        # print("brasil = " + str(reverse_count), end="]\n")
     # except Forbidden:
         # continue
