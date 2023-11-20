@@ -12,21 +12,6 @@ reddit = praw.Reddit(
     password="10Pqlazm2._", 
 )
 
-
-
-# def is_post(instancia):
-#     try:
-#         instancia = str(submission.body) # caso seja comentario
-#         return False
-#     except AttributeError:
-#         instancia = str(submission.title) # caso seja comentario
-#         return True
-# def has_multimidia(instancia):
-#     ####
-#     return True
-# def has_minimal_content(instancia):
-#     ###
-#     return True
 def get_submission(submission):
     try:
             content = str(submission.body) # caso seja comentario
@@ -75,59 +60,17 @@ def select_redditors(redditors_names, final_redditors_list, df):
             continue
     return df
 
-comments_and_posts = [] # vetor inicial que vai o título e conteúdo dos posts ou o conteúdo dos comentários
+comments_and_posts = [] 
 redditors_names = []
 final_redditors_list = []
-df = pd.DataFrame() # dataframe com os autores e o conteúdo dos posts
+df = pd.DataFrame() 
 
 redditors_names = list_redditors(redditors_names)
 print("Lista inicial de nomes que postaram recentemente no r/brasil: ")
 print(len(redditors_names), ": ", redditors_names)
 
-# final_redditors_list = select_redditors(redditors_names, final_redditors_list, df=df)
-
-
-# pra cada nome na lista
-# if submission.subreddit.display_name == "brasil":
-
-
-
-
-
-
-
-# def create_dataset(final_redditors_list):
-
-#       for redditor in final_redditors_list:
-#         count = 0
-#         try:
-#             for submission in reddit.redditor(redditor).new(limit=250):
-#                 try:
-#                     content = str(submission.body) # caso seja comentario
-#                     comments_and_posts.append(content)
-
-#                 except AttributeError:
-#                     content = str(submission.title) # caso seja post
-#                     post_content = str(submission.selftext)
-#                     content = "Titulo = " + content + "\n Conteúdo = " + post_content
-#                     comments_and_posts.append(content)
-                  
-#             if(len(comments_and_posts) == 250):
-#                 df[redditor] = comments_and_posts
-#                 print(df)
-#                 count+=1
-#                 if count == 25: break
-#             comments_and_posts.clear()
-#         except Forbidden: continue
-    
-#       return df
 
 df = select_redditors(redditors_names=redditors_names, final_redditors_list=final_redditors_list, df=df)
 print("Lista final de usuários ativos no r/brasil: ")
 print(len(final_redditors_list), ": ", final_redditors_list)
 df.to_csv('brasil.csv', sep=',', index=False)
-        # print(redditor, end = " [")
-        # print("brasil = " + str(count), end =", ")
-        # print("brasilivre = " + str(reverse_count), end="]\n")
-    # except Forbidden:
-        # continue
