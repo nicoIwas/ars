@@ -1,2 +1,4 @@
 /transformers
 /.env
+data/brwac.vert
+data/brwac.vert.gz
