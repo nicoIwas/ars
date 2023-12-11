@@ -31,11 +31,12 @@ def clean_text(text, stop_words):
   text = re.sub(r'[%s]' % re.escape('!"#$%&\()*+,-./:;<=>?@[\\]^_`{|}~“…”’'), ' ', text)
   text = re.sub(r'\d+', ' ', text)
   text = re.sub(r'\s{2,}', ' ', text)
-  text = text.replace('title', '').replace('selftetextt', '')
+  text = text.replace('title', '').replace('selftext', '')
   return clean_emojis(text)
   
 
 def clean_df(list_df):
+    # in case its your first time running the script
     # nltk.download('stopwords')
     # nltk.download('punkt')
     stop_words = nltk.corpus.stopwords.words('portuguese')
@@ -48,11 +49,6 @@ def clean_df(list_df):
     return list_df
 
     # while t:
-
-# df.iloc[0]=250
-# df.iloc[1]=25
-
-
 
 
 if __name__ == '__main__':
